@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # WordPress service
+  wordpress:
+    image: wordpress:latest
+    container_name: wp_dev
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress_db
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG', true);
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
+        define('SCRIPT_DEBUG', true);
+        define('SAVEQUERIES', true);
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./plugins:/var/www/html/wp-content/plugins/custom
+      - ./themes:/var/www/html/wp-content/themes/custom
+      - ./uploads:/var/www/html/wp-content/uploads
+      - ./wp-config-dev.php:/var/www/html/wp-config-dev.php
+    depends_on:
+      - db
+    networks:
+      - wordpress_network
+
+  # MySQL database service
+  db:
+    image: mysql:8.0
+    container_name: wp_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - wordpress_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: wp_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - wordpress_network
+
+  # WP-CLI for WordPress command line management
+  wpcli:
+    image: wordpress:cli
+    container_name: wp_cli
+    restart: "no"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./plugins:/var/www/html/wp-content/plugins/custom
+      - ./themes:/var/www/html/wp-content/themes/custom
+    depends_on:
+      - wordpress
+      - db
+    networks:
+      - wordpress_network
+    user: "33:33"
+    command: tail -f /dev/null
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: wp_mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - wordpress_network
+
+volumes:
+  wordpress_data:
+  db_data:
+
+networks:
+  wordpress_network:
+    driver: bridge
