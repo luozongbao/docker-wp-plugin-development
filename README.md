@@ -14,7 +14,7 @@ A complete Docker-based development environment for WordPress plugin development
 
 1. **Start the environment:**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 2. **Access WordPress:**
@@ -65,25 +65,25 @@ dev/
 ### Docker Operations
 ```bash
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # Stop services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f wordpress
+docker compose logs -f wordpress
 
 # Restart specific service
-docker-compose restart wordpress
+docker compose restart wordpress
 ```
 
 ### WP-CLI Commands
 ```bash
 # Access WP-CLI container
-docker-compose exec wpcli bash
+docker compose exec wpcli bash
 
 # Install WordPress (if needed)
-docker-compose exec wpcli wp core install \
+docker compose exec wpcli wp core install \
   --url=localhost:8080 \
   --title="Dev Site" \
   --admin_user=admin \
@@ -91,22 +91,22 @@ docker-compose exec wpcli wp core install \
   --admin_email=admin@example.com
 
 # Activate a plugin
-docker-compose exec wpcli wp plugin activate my-plugin
+docker compose exec wpcli wp plugin activate my-plugin
 
 # List all plugins
-docker-compose exec wpcli wp plugin list
+docker compose exec wpcli wp plugin list
 
 # Update WordPress
-docker-compose exec wpcli wp core update
+docker compose exec wpcli wp core update
 ```
 
 ### Database Operations
 ```bash
 # Export database
-docker-compose exec db mysqldump -u root -proot_password wordpress_db > backup.sql
+docker compose exec db mysqldump -u root -proot_password wordpress_db > backup.sql
 
 # Import database
-docker-compose exec -T db mysql -u root -proot_password wordpress_db < backup.sql
+docker compose exec -T db mysql -u root -proot_password wordpress_db < backup.sql
 ```
 
 ## Development Features

@@ -29,8 +29,8 @@ check_requirements() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
-        print_color $RED "Docker Compose is not installed. Please install Docker Compose first."
+    if ! docker compose version &> /dev/null; then
+        print_color $RED "Docker Compose is not available. Please install Docker with Compose plugin."
         exit 1
     fi
 }
@@ -38,7 +38,7 @@ check_requirements() {
 # Start the development environment
 start() {
     print_color $BLUE "Starting WordPress development environment..."
-    docker-compose up -d
+    docker compose up -d
     
     print_color $GREEN "Environment started successfully!"
     print_status
@@ -47,14 +47,14 @@ start() {
 # Stop the development environment
 stop() {
     print_color $BLUE "Stopping WordPress development environment..."
-    docker-compose down
+    docker compose down
     print_color $GREEN "Environment stopped successfully!"
 }
 
 # Restart the environment
 restart() {
     print_color $BLUE "Restarting WordPress development environment..."
-    docker-compose restart
+    docker compose restart
     print_color $GREEN "Environment restarted successfully!"
     print_status
 }
@@ -62,7 +62,7 @@ restart() {
 # Show environment status
 status() {
     print_color $BLUE "Checking environment status..."
-    docker-compose ps
+    docker compose ps
 }
 
 # Print access information
@@ -88,16 +88,16 @@ print_status() {
 # Show logs
 logs() {
     if [ -z "$2" ]; then
-        docker-compose logs -f
+        docker compose logs -f
     else
-        docker-compose logs -f "$2"
+        docker compose logs -f "$2"
     fi
 }
 
 # Execute WP-CLI commands
 wp_cli() {
     shift # Remove 'wp' from arguments
-    docker-compose exec wpcli wp "$@"
+    docker compose exec wpcli wp "$@"
 }
 
 # Create a new plugin template
@@ -271,7 +271,7 @@ EOF
 backup_db() {
     BACKUP_FILE="backup-$(date +%Y%m%d-%H%M%S).sql"
     print_color $BLUE "Creating database backup: $BACKUP_FILE"
-    docker-compose exec db mysqldump -u root -proot_password wordpress_db > "$BACKUP_FILE"
+    docker compose exec db mysqldump -u root -proot_password wordpress_db > "$BACKUP_FILE"
     print_color $GREEN "Database backup created: $BACKUP_FILE"
 }
 
@@ -288,7 +288,7 @@ restore_db() {
     fi
     
     print_color $BLUE "Restoring database from: $2"
-    docker-compose exec -T db mysql -u root -proot_password wordpress_db < "$2"
+    docker compose exec -T db mysql -u root -proot_password wordpress_db < "$2"
     print_color $GREEN "Database restored successfully!"
 }
 
@@ -298,7 +298,7 @@ clean() {
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         print_color $BLUE "Cleaning up environment..."
-        docker-compose down -v --remove-orphans
+        docker compose down -v --remove-orphans
         docker system prune -f
         print_color $GREEN "Environment cleaned successfully!"
     else

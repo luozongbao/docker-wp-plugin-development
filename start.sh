@@ -17,7 +17,7 @@ echo ""
 
 # Start the environment
 echo "🔄 Starting WordPress development environment..."
-docker-compose up -d
+docker compose up -d
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to start..."
@@ -41,8 +41,8 @@ if curl -s http://localhost:8080 >/dev/null; then
     echo "   Password: wordpress_password"
     echo ""
     echo "🛠️  Useful Commands:"
-    echo "   Stop environment: docker-compose down"
-    echo "   View logs: docker-compose logs -f"
+    echo "   Stop environment: docker compose down"
+    echo "   View logs: docker compose logs -f"
     echo "   Use dev script: ./scripts/dev.sh help"
     echo ""
     echo "📁 Your plugin files go in: ./plugins/"
@@ -50,5 +50,5 @@ if curl -s http://localhost:8080 >/dev/null; then
     echo ""
 else
     echo "❌ WordPress is not responding. Check the logs:"
-    echo "   docker-compose logs wordpress"
+    echo "   docker compose logs wordpress"
 fi
